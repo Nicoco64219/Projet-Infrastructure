@@ -1,0 +1,14 @@
+# Dépendances installées (reconstruites par Docker au build)
+node_modules/
+
+# Données / volumes locaux éventuels
+*.log
+db-data/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/

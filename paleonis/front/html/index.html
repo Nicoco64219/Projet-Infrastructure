@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PaLeonis — Démo infra 3-tiers</title>
+  <style>
+    :root { --bleu: #1d4e89; --gris: #f4f6f8; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, "Segoe UI", Arial, sans-serif;
+      margin: 0; background: var(--gris); color: #1a1a1a;
+    }
+    header {
+      background: var(--bleu); color: #fff; padding: 24px 20px;
+    }
+    header h1 { margin: 0; font-size: 1.4rem; }
+    header p { margin: 6px 0 0; opacity: .85; font-size: .9rem; }
+    main { max-width: 720px; margin: 0 auto; padding: 24px 20px; }
+    .carte {
+      background: #fff; border-radius: 10px; padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 20px;
+    }
+    .statut { font-size: .85rem; padding: 4px 10px; border-radius: 20px; display: inline-block; }
+    .ok { background: #e3f5e8; color: #1b7a3d; }
+    .ko { background: #fde6e6; color: #b02020; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li {
+      padding: 12px 14px; border-left: 3px solid var(--bleu);
+      background: var(--gris); border-radius: 6px; margin-bottom: 10px;
+    }
+    li small { color: #666; display: block; margin-top: 4px; }
+    .ligne { display: flex; gap: 10px; margin-top: 12px; }
+    input {
+      flex: 1; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem;
+    }
+    button {
+      background: var(--bleu); color: #fff; border: 0; border-radius: 6px;
+      padding: 10px 18px; font-size: 1rem; cursor: pointer;
+    }
+    button:hover { background: #163a66; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PaLeonis — Démonstrateur d'infrastructure</h1>
+    <p>Front (nginx) → API (Node/Express) → Base (MySQL)</p>
+  </header>
+
+  <main>
+    <div class="carte">
+      <strong>État de l'API :</strong>
+      <span id="statut" class="statut">vérification…</span>
+    </div>
+
+    <div class="carte">
+      <h2 style="margin-top:0;">Messages stockés dans la base</h2>
+      <p style="color:#666; font-size:.9rem;">
+        Cette liste est lue en direct depuis MySQL, via l'API. Si vous la voyez,
+        c'est que les trois tiers communiquent.
+      </p>
+      <ul id="liste"><li>Chargement…</li></ul>
+
+      <div class="ligne">
+        <input id="champ" placeholder="Écrire un nouveau message…" />
+        <button id="envoyer">Envoyer</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

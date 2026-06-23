@@ -1,0 +1,74 @@
+# ============================================================
+#  PaLeonis - Stack 3-tiers (front + API + base de données)
+#  Equipe NYJ : Nicolas CHEN, Jonathan LIAO, Yannis LEVENEUR
+# ============================================================
+
+services:
+
+  # ---- Tier 3 : Base de données (MySQL) ----
+  db:
+    image: mysql:8.0
+    container_name: paleonis-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpwd
+      MYSQL_DATABASE: paleonis
+      MYSQL_USER: paleonis
+      MYSQL_PASSWORD: paleonispwd
+    volumes:
+      # Volume nommé : les données SURVIVENT au redémarrage des conteneurs
+      - db-data:/var/lib/mysql
+      # Script d'initialisation joué une seule fois à la création de la base
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - paleonis-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpwd"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # PAS de "ports:" ici : la base n'est PAS exposée vers l'extérieur.
+    # Elle n'est joignable que par l'API, sur le réseau interne Docker.
+
+  # ---- Tier 2 : API (Node.js / Express) ----
+  api:
+    build: ./api
+    container_name: paleonis-api
+    restart: unless-stopped
+    environment:
+      DB_HOST: db          # on contacte la base par son NOM de service, pas par une IP
+      DB_USER: paleonis
+      DB_PASSWORD: paleonispwd
+      DB_NAME: paleonis
+      PORT: 3000
+    ports:
+      - "3000:3000"        # port mapping : 3000 (VM) -> 3000 (conteneur)
+    depends_on:
+      db:
+        condition: service_healthy   # l'API démarre quand la base répond
+    networks:
+      - paleonis-net
+
+  # ---- Tier 1 : Frontend (nginx) ----
+  front:
+    image: nginx:alpine
+    container_name: paleonis-front
+    restart: unless-stopped
+    volumes:
+      - ./front/html:/usr/share/nginx/html:ro
+      - ./front/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "8080:80"          # port mapping : 8080 (VM) -> 80 (conteneur)
+    depends_on:
+      - api
+    networks:
+      - paleonis-net
+
+# Réseau privé Docker : c'est lui qui permet aux 3 conteneurs de se parler.
+networks:
+  paleonis-net:
+    driver: bridge
+
+# Volume nommé pour la persistance des données MySQL.
+volumes:
+  db-data:
